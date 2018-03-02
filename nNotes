@@ -1,0 +1,29 @@
+#!/bin/bash
+
+NOTEDIR=~/Documents/notes
+VERSION=0.0.0
+
+if [ -z "$*" ]; then 
+    vim $NOTEDIR/$(date +%F-%A).nn fi
+else
+    while test $# -gt 0; do
+        case "$1" in
+            -h|--help)
+                echo "nNotes version $VERSION"
+                echo "-t | --todo - display all unresolved todo items"
+                echo "-d | --date - display specific date"
+                exit 0
+                ;;
+            -t|--todo)
+                # gather all unresolved todo:es in a doc called todo.nn
+                grep -h o ~/Documents/notes/* | egrep "^o" > todo.nn
+                # open document
+                vim todo.nn
+                exit 0
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+fi
