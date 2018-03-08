@@ -3,6 +3,23 @@
 NOTEDIR=~/Documents/nNotes
 VERSION=0.0.0
 
+
+run_todo ()
+{
+    # gather all unresolved todo:es in a doc called todo.nn
+    egrep -n ^o[[:space:]] $NOTEDIR/* > todo_files.list
+    awk -F  ":" '{print $3}' todo_files.list > todo.nn
+    # open document
+    vim todo.nn
+    # write back to note
+    while read f1 <&3 && read f2 <&4; do
+        linenumber=$(echo $f1 | awk -F ":" '{print $2}')
+        read_to_file=$(echo $f1 | awk -F ":" '{print $1}')
+        sed -i "${linenumber}s/.*/$f2/" "$read_to_file"
+    done 3<todo_files.list 4<todo.nn
+    rm todo_files.list todo.nn
+}
+
 if [ -z "$*" ]; then 
     vim $NOTEDIR/$(date +%F-%A).nn
 else
@@ -15,17 +32,7 @@ else
                 exit 0
                 ;;
             -t|--todo)
-                # gather all unresolved todo:es in a doc called todo.nn
-                #grep -h o ~/Documents/notes/* | egrep "^o" > todo.nn
-                egrep -n ^o[[:space:]] $NOTEDIR/* > todo_files.list
-                awk -F  ":" '{print $3}' todo_files.list > todo.nn
-                # open document
-                vim todo.nn
-                while read f1 <&3 && read f2 <&4; do
-                    linenumber=$(echo $f1 | awk -F ":" '{print $2}')
-                    read_to_file=$(echo $f1 | awk -F ":" '{print $1}')
-                    sed -i "${linenumber}s/.*/$f2/" "$read_to_file"
-                done 3<todo_files.list 4<todo.nn
+        run_todo
                 exit 0
                 ;;
             -d|--date)
